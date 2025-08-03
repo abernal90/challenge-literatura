@@ -1,9 +1,8 @@
 package com.aluracursos.libros.principal;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.aluracursos.libros.constant.Constantes;
 import com.aluracursos.libros.record.AutorDTO;
 import com.aluracursos.libros.record.LibroDTO;
-import com.aluracursos.libros.service.IAutorService;
 import com.aluracursos.libros.service.IConsumoAPIService;
 import com.aluracursos.libros.service.ILibroService;
 
@@ -23,9 +21,6 @@ public class Principal {
 	
 	@Autowired
 	private IConsumoAPIService consumoAPIService;
-	
-	@Autowired
-	private IAutorService autorService;
 	
 	public void iniciarMenu() {
 		
@@ -83,12 +78,12 @@ public class Principal {
 	}
 	
 	private void obtenerAutorePorAnio(Integer anio) {
-		List<AutorDTO> autores = autorService.obtenerAutoresPorAnio(anio);
+		List<AutorDTO> autores = libroService.obtenerAutoresPorAnio(anio);
 		autores.forEach(this::imprimirAutor);
 	}
 	
 	private void obtenerAutoreGuardados() {
-		List<AutorDTO> autores = autorService.obtenerAutores();
+		List<AutorDTO> autores = libroService.obtenerAutores();
 		autores.forEach(this::imprimirAutor);
 	}
 	
@@ -103,9 +98,8 @@ public class Principal {
 			var libroDTO = optionalLibro.get();
 			var librosDTO = libroService.buscarPorTitulo(libroDTO.titulo());
 			if(librosDTO.isEmpty()) {
-				librosDTO = new ArrayList<>();
+				librosDTO = Arrays.asList(libroDTO);
 				libroService.guardarLibro(libroDTO);
-				librosDTO.add(libroDTO);
 			}
 			librosDTO.forEach(this::imprimirLibro);
 			
@@ -117,7 +111,7 @@ public class Principal {
 	
 	private void imprimirAutor(AutorDTO autor) {
 		System.out.println("\n--------------Autor---------------");
-		System.out.printf("Nombre: %s\n", autor.nombre());
+		System.out.printf("Nombre: %s\n", autor.autor());
 		System.out.printf("Año de nacimiento: %d\n", autor.anioInicio());
 		System.out.printf("Año de fallecimiento: %d\n", autor.anioFin());
 		System.out.println("----------------------------------");
@@ -126,10 +120,8 @@ public class Principal {
 	private void imprimirLibro(LibroDTO libro) {
 		System.out.println("\n--------------Libro---------------");
 		System.out.printf("Título: %s\n", libro.titulo());
-		System.out.printf("Autores: %s\n", libro.autores().stream()
-				.map(autor -> autor.nombre()).collect(Collectors.joining(",")));
-		System.out.printf("Idiomas: %s\n", libro.lenguajes() .stream()
-				.map(lenguaje -> lenguaje.pais()).collect(Collectors.joining(",")));
+		System.out.printf("Autor: %s\n", libro.autor());
+		System.out.printf("Idioma: %s\n", libro.lenguaje() );
 		System.out.printf("Número de descargas: %d\n", libro.numeroDescargas());
 		System.out.println("----------------------------------");
 	}

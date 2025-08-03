@@ -6,7 +6,7 @@ import com.aluracursos.libros.record.LibroDTO;
 
 public interface IConsumoAPIService {
 
-	String obtenerPais(String codigo);
+	String obtenerLenguaje(String codigo);
 
 	Optional<LibroDTO> obtenerLibro(String titulo);
 

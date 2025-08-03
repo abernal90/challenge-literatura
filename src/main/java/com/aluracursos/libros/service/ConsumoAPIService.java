@@ -4,18 +4,14 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import com.aluracursos.libros.constant.Constantes;
-import com.aluracursos.libros.record.AutorDTO;
-import com.aluracursos.libros.record.LenguajeDTO;
-import com.aluracursos.libros.record.LibroDTO;
 import com.aluracursos.libros.record.LanguajeDTO;
+import com.aluracursos.libros.record.LibroDTO;
 import com.google.gson.Gson;
 
 import io.micrometer.common.util.StringUtils;
@@ -24,7 +20,7 @@ import io.micrometer.common.util.StringUtils;
 public class ConsumoAPIService implements IConsumoAPIService {
 	
 	@Override
-	public String obtenerPais(String codigo) {
+	public String obtenerLenguaje(String codigo) {
 		// Creación del objeto URL para hacer la solicitud al API
 		var direccion = URI.create(Constantes.URL_API_CODIGO_LENGUAJE);
 		// Generamos el cuerpo de la solicitud
@@ -58,7 +54,6 @@ public class ConsumoAPIService implements IConsumoAPIService {
 	
 	@Override
 	public Optional<LibroDTO> obtenerLibro(String titulo) {
-	
 		// Creación del objeto URL para hacer la solicitud al API
 		var direccion = URI.create(Constantes.URL_API_LIBROS.concat(titulo));
 
@@ -102,34 +97,21 @@ public class ConsumoAPIService implements IConsumoAPIService {
 		var results = jsonObject.getJSONArray("results");
     	var jsonLibro = results.getJSONObject(0);
     	
-    	List<AutorDTO> autoresDTO = new ArrayList<>();
+
     	var jsonAutores = jsonLibro.getJSONArray("authors");
-    	jsonAutores.forEach(objectAutor->{
-    		var jsonAutor = JSONObject.class.cast(objectAutor);
-    		autoresDTO.add(
-    				new AutorDTO(
-    				jsonAutor.getString("name"), 
-    				jsonAutor.getInt("birth_year"), 
-    				jsonAutor.getInt("death_year"))
-    		);
-    	});
-    	
-    	List<LenguajeDTO> lenguajesDTO = new ArrayList<>();
+    	var jsonAutor = jsonAutores.getJSONObject(0);
+
      	var jsonLenguajes = jsonLibro.getJSONArray("languages");
-     	jsonLenguajes.forEach(objectLenguaje->{
-    		var codigo = objectLenguaje.toString();
-    		lenguajesDTO.add(
-    				new LenguajeDTO(
-						codigo, 
-						obtenerPais(codigo))
-    		);
-    	});
+     	var codigoLenguaje = jsonLenguajes.get(0).toString();
     	
     	var libroDTO = new LibroDTO(
     			jsonLibro.getString("title"), 
     			jsonLibro.getInt("download_count"), 
-    			autoresDTO, 
-    			lenguajesDTO);
+    			jsonAutor.getString("name"),
+    			jsonAutor.getInt("birth_year"),
+    			jsonAutor.getInt("death_year"),
+    			codigoLenguaje,
+    			obtenerLenguaje(codigoLenguaje));
     	return libroDTO;
 	}
 	
