@@ -1,4 +1,4 @@
-# Consulta de Librería
+# Consulta de Literatura
 
 Aplicación en java que permite la consulta de información relacionada con una librería virtual:
 
